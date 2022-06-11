@@ -1,0 +1,54 @@
+version: '3.7'
+
+services:
+
+  web:
+    build: 
+      context: web
+    restart: always
+    environment:
+      PYTHONUNBUFFERED: 1
+      MONGODB_USERNAME: changeme
+      MONGODB_PASSWORD: changeme
+      MONGODB_HOST: 192.168.1.20
+      MONGODB_PORT: 27017
+    ports:
+      - 5000:5000
+
+  stats:
+    build: 
+      context: stats
+    restart: always
+    environment:
+      PYTHONUNBUFFERED: 1
+      MONGODB_USERNAME: changeme
+      MONGODB_PASSWORD: changeme
+      MONGODB_HOST: 192.168.1.20
+      MONGODB_PORT: 27017
+
+  updater:
+    build: 
+      context: updater
+    restart: always
+    environment:
+      PYTHONUNBUFFERED: 1
+      MONGODB_USERNAME: changeme
+      MONGODB_PASSWORD: changeme
+      MONGODB_HOST: 192.168.1.20
+      MONGODB_PORT: 27017
+
+  db:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: changeme
+      MONGO_INITDB_ROOT_PASSWORD: changeme
+    volumes:
+      - ./docker_db:/data/db
+    ports:
+      - 27017:27017
+
+networks:
+  default:
+    external: true
+    name: dockernet

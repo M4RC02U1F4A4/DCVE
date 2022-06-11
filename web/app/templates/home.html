@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>CVE</title>
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/home.css') }}">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-12 bg-dark text-light">
+                <p class="text-center font-weight-bold h2">CVEs DASHBOARD</p>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-2 bg-primary text-light">
+                <p class="text-center font-weight-bold h4">TOTAL</p>
+                <p class="text-center h5">{{ numberOfCVE }}</p>
+            </div>
+            <div class="col-sm-2 CRITICAL text-light">
+                <p class="text-center font-weight-bold h4">CRITICAL</p>
+                <p class="text-center h5">{{ numberOfCVE_CRITICAL }}</p>
+            </div>
+            <div class="col-sm-2 HIGH text-light">
+                <p class="text-center font-weight-bold h4">HIGH</p>
+                <p class="text-center h5">{{ numberOfCVE_HIGH }}</p>
+            </div>
+            <div class="col-sm-2 MEDIUM text-light">
+                <p class="text-center font-weight-bold h4">MEDIUM</p>
+                <p class="text-center h5">{{ numberOfCVE_MEDIUM }}</p>
+            </div>
+            <div class="col-sm-2 LOW text-light">
+                <p class="text-center font-weight-bold h4">LOW</p>
+                <p class="text-center h5">{{ numberOfCVE_LOW }}</p>
+            </div>
+            <div class="col-sm-2 bg-primary text-light">
+                <p class="text-center font-weight-bold h4">No Score</p>
+                <p class="text-center h5">{{ numberOfCVE_NoScore }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-12 bg-dark text-light">
+                <p class="text-center font-weight-bold h5">LAST 10 VULNERABILITIES BY SEVERITY</p>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid">
+        {%for i in range(0, 10)%}
+            <div class="row">
+                <div class="col-sm-3 CRITICAL-info text-dark">
+                    <p class="text-center h5 font-weight-bold">{{recent_CRITICAL[i]['_id']}} - {{recent_CRITICAL[i]['baseScore']}}</p>
+                    <p class="text-center description">{{recent_CRITICAL[i]['vectorString']}}</p>
+                    <p class="description line-clamp">{{recent_CRITICAL[i]['description']}}</p>
+                    <p class="text-center">{{recent_CRITICAL[i]['publishedDate']}}</p>
+                </div>
+                <div class="col-sm-3 HIGH-info text-dark">
+                    <p class="text-center h5 font-weight-bold">{{recent_HIGH[i]['_id']}} - {{recent_HIGH[i]['baseScore']}}</p>
+                    <p class="text-center description">{{recent_HIGH[i]['vectorString']}}</p>
+                    <p class="description line-clamp">{{recent_HIGH[i]['description']}}</p>
+                    <p class="text-center">{{recent_HIGH[i]['publishedDate']}}</p>
+                </div>
+                <div class="col-sm-3 MEDIUM-info text-dark">
+                    <p class="text-center h5 font-weight-bold">{{recent_MEDIUM[i]['_id']}} - {{recent_MEDIUM[i]['baseScore']}}</p>
+                    <p class="text-center description">{{recent_MEDIUM[i]['vectorString']}}</p>
+                    <p class="description line-clamp">{{recent_MEDIUM[i]['description']}}</p>
+                    <p class="text-center">{{recent_MEDIUM[i]['publishedDate']}}</p>
+                </div>
+                <div class="col-sm-3 LOW-info text-dark">
+                    <p class="text-center h5 font-weight-bold">{{recent_LOW[i]['_id']}} - {{recent_LOW[i]['baseScore']}}</p>
+                    <p class="text-center description">{{recent_LOW[i]['vectorString']}}</p>
+                    <p class="description line-clamp">{{recent_LOW[i]['description']}}</p>
+                    <p class="text-center">{{recent_LOW[i]['publishedDate']}}</p>
+                </div>
+            </div>
+            <div class="row SEPARATOR"></div>
+        {%endfor%}
+    </div>
+    <script src="{{ url_for('static', filename='script/comm.js') }}"></script>
+</body>
+</html>

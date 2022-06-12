@@ -9,6 +9,7 @@ import datetime
 from apscheduler.schedulers.blocking import BlockingScheduler
 import os
 import requests
+from datetime import date, datetime
 
 
 def shacheck(link, id):
@@ -72,7 +73,7 @@ def insertCVE(mydict):
     try:
         cveDB.insert_one(mydict)
     except:
-        cveDB.update_one({"_id":f"{mydict['_id']}"}, {"$set": {"baseScore":mydict['baseScore'], "vectorString":f"{mydict['vectorString']}", "description":f"{mydict['description']}", "publishedDate":f"{mydict['publishedDate']}", "lastModifiedDate":f"{mydict['lastModifiedDate']}"}})
+        cveDB.update_one({"_id":f"{mydict['_id']}"}, {"$set": {"baseScore":mydict['baseScore'], "vectorString":f"{mydict['vectorString']}", "description":f"{mydict['description']}", "publishedDate":mydict['publishedDate'], "lastModifiedDate":mydict['lastModifiedDate']}})
 
 
 def updateAll():
@@ -122,6 +123,23 @@ def createCache():
     recent_LOW = cveDB.find({'baseScore': {'$gte': 0.1, '$lte': 3.9}}).sort('lastModifiedDate', -1).limit(10)
     lastModifiedDateDB.insert_many(recent_LOW)
 
+    todayDate = datetime.strptime(date.today().strftime("%Y-%m-%d"), "%Y-%m-%d")
+
+    todayPublishedDateDB.delete_many({})
+    todayPublished_CVE = cveDB.find({"$and":[{"publishedDate":{"$gte":todayDate}},{"baseScore": {'$gte': 0.1}}]})
+    todayPublished_CVE = list(todayPublished_CVE)
+    if todayPublished_CVE:
+        todayPublishedDateDB.insert_many(todayPublished_CVE)
+
+    todayLastModifiedDateDB.delete_many({})
+    todayModified_CVE = cveDB.find({"$and":[{"lastModifiedDate":{"$gte":todayDate}},{"baseScore": {'$gte': 0.1}}]})
+    todayModified_CVE = list(todayModified_CVE)
+    if todayModified_CVE:
+        todayLastModifiedDateDB.insert_many(todayModified_CVE)
+    print("Cache created")
+    
+
+
 
 def metaCalc():
     print("Updating metadata...")
@@ -142,11 +160,16 @@ db2 = client.cache
 publishedDateDB = db2['publishedDateDB']
 lastModifiedDateDB = db2['lastModifiedDateDB']
 
+todayPublishedDateDB = db2['todayPublishedDateDB']
+todayLastModifiedDateDB = db2['todayLastModifiedDateDB']
+
 cveDB.create_index('baseScore')
 cveDB.create_index('publishedDate')
 cveDB.create_index('lastModifiedDate')
 publishedDateDB.create_index('publishedDate')
 lastModifiedDateDB.create_index('lastModifiedDate')
+todayPublishedDateDB.create_index('publishedDate')
+todayLastModifiedDateDB.create_index('lastModifiedDate')
 
 updateModiefied()
 updateAll()

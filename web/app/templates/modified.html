@@ -45,7 +45,7 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-12 bg-dark text-light">
-                <p class="text-center font-weight-bold h5">LAST 10 VULNERABILITIES BY SEVERITY</p>
+                <p class="text-center font-weight-bold h5">LAST 10 MODIFIED VULNERABILITIES BY SEVERITY</p>
             </div>
         </div>
     </div>
@@ -56,28 +56,28 @@
                     <p class="text-center h5 font-weight-bold">{{recent_CRITICAL[i]['_id']}} - {{recent_CRITICAL[i]['baseScore']}}</p>
                     <p class="text-center description">{{recent_CRITICAL[i]['vectorString']}}</p>
                     <p class="description line-clamp">{{recent_CRITICAL[i]['description']}}</p>
-                    <p class="text-center">{{recent_CRITICAL[i]['publishedDate']}}</p>
+                    <p class="text-center">{{recent_CRITICAL[i]['lastModifiedDate']}}</p>
                     <a class="stretched-link" target="_blank" href="https://nvd.nist.gov/vuln/detail/{{recent_CRITICAL[i]['_id']}}"></a>
                 </div>
                 <div class="col-sm-3 HIGH-info text-dark position-relative">
                     <p class="text-center h5 font-weight-bold">{{recent_HIGH[i]['_id']}} - {{recent_HIGH[i]['baseScore']}}</p>
                     <p class="text-center description">{{recent_HIGH[i]['vectorString']}}</p>
                     <p class="description line-clamp">{{recent_HIGH[i]['description']}}</p>
-                    <p class="text-center">{{recent_HIGH[i]['publishedDate']}}</p>
+                    <p class="text-center">{{recent_HIGH[i]['lastModifiedDate']}}</p>
                     <a class="stretched-link" target="_blank" href="https://nvd.nist.gov/vuln/detail/{{recent_HIGH[i]['_id']}}"></a>
                 </div>
                 <div class="col-sm-3 MEDIUM-info text-dark position-relative">
                     <p class="text-center h5 font-weight-bold">{{recent_MEDIUM[i]['_id']}} - {{recent_MEDIUM[i]['baseScore']}}</p>
                     <p class="text-center description">{{recent_MEDIUM[i]['vectorString']}}</p>
                     <p class="description line-clamp">{{recent_MEDIUM[i]['description']}}</p>
-                    <p class="text-center">{{recent_MEDIUM[i]['publishedDate']}}</p>
+                    <p class="text-center">{{recent_MEDIUM[i]['lastModifiedDate']}}</p>
                     <a class="stretched-link" target="_blank" href="https://nvd.nist.gov/vuln/detail/{{recent_MEDIUM[i]['_id']}}"></a>
                 </div>
                 <div class="col-sm-3 LOW-info text-dark position-relative">
                     <p class="text-center h5 font-weight-bold">{{recent_LOW[i]['_id']}} - {{recent_LOW[i]['baseScore']}}</p>
                     <p class="text-center description">{{recent_LOW[i]['vectorString']}}</p>
                     <p class="description line-clamp">{{recent_LOW[i]['description']}}</p>
-                    <p class="text-center">{{recent_LOW[i]['publishedDate']}}</p>
+                    <p class="text-center">{{recent_LOW[i]['lastModifiedDate']}}</p>
                     <a class="stretched-link" target="_blank" href="https://nvd.nist.gov/vuln/detail/{{recent_LOW[i]['_id']}}"></a>
                 </div>
             </div>

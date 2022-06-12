@@ -11,10 +11,10 @@ def home():
 @app.route('/published')
 def published():
     mydict = stats.find_one({"_id":"stats"})
-    recent_CRITICAL = cveDB.find(({'baseScore':  {'$gte': 9.0}})).sort('publishedDate', -1).limit(10)
-    recent_HIGH = cveDB.find({'baseScore':  {'$gte': 7.0, '$lte': 8.9}}).sort('publishedDate', -1).limit(10)
-    recent_MEDIUM = cveDB.find({'baseScore':  {'$gte': 4.0, '$lte': 6.9}}).sort('publishedDate', -1).limit(10)
-    recent_LOW = cveDB.find({'baseScore': {'$gte': 0.1, '$lte': 3.9}}).sort('publishedDate', -1).limit(10)
+    recent_CRITICAL = publishedDateDB.find(({'baseScore':  {'$gte': 9.0}})).sort('publishedDate', -1).limit(10)
+    recent_HIGH = publishedDateDB.find({'baseScore':  {'$gte': 7.0, '$lte': 8.9}}).sort('publishedDate', -1).limit(10)
+    recent_MEDIUM = publishedDateDB.find({'baseScore':  {'$gte': 4.0, '$lte': 6.9}}).sort('publishedDate', -1).limit(10)
+    recent_LOW = publishedDateDB.find({'baseScore': {'$gte': 0.1, '$lte': 3.9}}).sort('publishedDate', -1).limit(10)
     return render_template(
         'published.html',
         numberOfCVE = mydict['numberOfCVE'],
@@ -32,10 +32,10 @@ def published():
 @app.route('/modified')
 def modified():
     mydict = stats.find_one({"_id":"stats"})
-    recent_CRITICAL = cveDB.find(({'baseScore':  {'$gte': 9.0}})).sort('lastModifiedDate', -1).limit(10)
-    recent_HIGH = cveDB.find({'baseScore':  {'$gte': 7.0, '$lte': 8.9}}).sort('lastModifiedDate', -1).limit(10)
-    recent_MEDIUM = cveDB.find({'baseScore':  {'$gte': 4.0, '$lte': 6.9}}).sort('lastModifiedDate', -1).limit(10)
-    recent_LOW = cveDB.find({'baseScore': {'$gte': 0.1, '$lte': 3.9}}).sort('lastModifiedDate', -1).limit(10)
+    recent_CRITICAL = lastModifiedDateDB.find(({'baseScore':  {'$gte': 9.0}})).sort('lastModifiedDate', -1).limit(10)
+    recent_HIGH = lastModifiedDateDB.find({'baseScore':  {'$gte': 7.0, '$lte': 8.9}}).sort('lastModifiedDate', -1).limit(10)
+    recent_MEDIUM = lastModifiedDateDB.find({'baseScore':  {'$gte': 4.0, '$lte': 6.9}}).sort('lastModifiedDate', -1).limit(10)
+    recent_LOW = lastModifiedDateDB.find({'baseScore': {'$gte': 0.1, '$lte': 3.9}}).sort('lastModifiedDate', -1).limit(10)
     return render_template(
         'modified.html',
         numberOfCVE = mydict['numberOfCVE'],
@@ -54,5 +54,7 @@ if __name__ == '__main__':
     client = pymongo.MongoClient(f"mongodb://{os.getenv('MONGODB_USERNAME')}:{os.getenv('MONGODB_PASSWORD')}@{os.getenv('MONGODB_HOST')}:{os.getenv('MONGODB_PORT')}")
     db = client.data
     stats = db['stats']
-    cveDB = db['cve']
+    db2 = client.cache
+    publishedDateDB = db2['publishedDateDB']
+    lastModifiedDateDB = db2['lastModifiedDateDB']
     app.run(debug=True, port=5000, host='0.0.0.0')

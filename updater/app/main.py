@@ -34,7 +34,7 @@ def shacheck(link, id):
 
 def statsCalc():
     print("Updating stats...")
-    numberOfCVE = str(cveDB.count_documents({}))
+    numberOfCVE = cveDB.count_documents({})
     print(f"N -> {numberOfCVE}")
     numberOfCVE_CRITICAL = cveDB.count_documents({'baseScore':  {'$gte': 9.0}})
     print(f"CRITICAL -> {numberOfCVE_CRITICAL}")
@@ -89,7 +89,6 @@ def updateAll():
             for i in data['CVE_Items']:
                 insertCVE(loadCVE(i))
             print("Done")
-    statsCalc()
     print("updateAll ended")
 
 def updateModiefied():
@@ -103,8 +102,38 @@ def updateModiefied():
         for i in data['CVE_Items']:
             insertCVE(loadCVE(i))
         print("Done")
-        statsCalc()
     print("updateModified ended")
+
+def createCache():
+    print("Creating cache...")
+    publishedDateDB.delete_many({})
+    recent_CRITICAL = cveDB.find(({'baseScore':  {'$gte': 9.0}})).sort('publishedDate', -1).limit(10)
+    publishedDateDB.insert_many(recent_CRITICAL)
+    recent_HIGH = cveDB.find({'baseScore':  {'$gte': 7.0, '$lte': 8.9}}).sort('publishedDate', -1).limit(10)
+    publishedDateDB.insert_many(recent_HIGH)
+    recent_MEDIUM = cveDB.find({'baseScore':  {'$gte': 4.0, '$lte': 6.9}}).sort('publishedDate', -1).limit(10)
+    publishedDateDB.insert_many(recent_MEDIUM)
+    recent_LOW = cveDB.find({'baseScore': {'$gte': 0.1, '$lte': 3.9}}).sort('publishedDate', -1).limit(10)
+    publishedDateDB.insert_many(recent_LOW)
+
+    lastModifiedDateDB.delete_many({})
+    recent_CRITICAL = cveDB.find(({'baseScore':  {'$gte': 9.0}})).sort('lastModifiedDate', -1).limit(10)
+    lastModifiedDateDB.insert_many(recent_CRITICAL)
+    recent_HIGH = cveDB.find({'baseScore':  {'$gte': 7.0, '$lte': 8.9}}).sort('lastModifiedDate', -1).limit(10)
+    lastModifiedDateDB.insert_many(recent_HIGH)
+    recent_MEDIUM = cveDB.find({'baseScore':  {'$gte': 4.0, '$lte': 6.9}}).sort('lastModifiedDate', -1).limit(10)
+    lastModifiedDateDB.insert_many(recent_MEDIUM)
+    recent_LOW = cveDB.find({'baseScore': {'$gte': 0.1, '$lte': 3.9}}).sort('lastModifiedDate', -1).limit(10)
+    lastModifiedDateDB.insert_many(recent_LOW)
+    print("Done")
+
+
+def metaCalc():
+    print("Updating metadata...")
+    statsCalc()
+    createCache()
+    print("Done")
+    
 
 # Wait for mongoDB
 time.sleep(2)
@@ -114,13 +143,22 @@ db = client.data
 cveDB = db['cve']
 stats = db['stats']
 meta = db['meta']
+
+db2 = client.cache
+publishedDateDB = db2['publishedDateDB']
+lastModifiedDateDB = db2['lastModifiedDateDB']
+
 cveDB.create_index('baseScore')
 cveDB.create_index('publishedDate')
 cveDB.create_index('lastModifiedDate')
+publishedDateDB.create_index('publishedDate')
+lastModifiedDateDB.create_index('lastModifiedDate')
 
-updateModiefied()
-updateAll()
+# updateModiefied()
+# updateAll()
+metaCalc()
 scheduler = BlockingScheduler()
 scheduler.add_job(updateAll, 'interval', hours=1)
 scheduler.add_job(updateModiefied, 'interval', hours=1)
+scheduler.add_job(metaCalc, 'interval', hours=1)
 scheduler.start()

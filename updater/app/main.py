@@ -1,5 +1,4 @@
 from datetime import date
-from email.mime import base
 import time
 import urllib.request
 import io
@@ -50,7 +49,6 @@ def statsCalc():
         stats.insert_one(mydict)
     except:
         stats.update_one({"_id":"stats"}, {"$set": {"numberOfCVE":numberOfCVE, "numberOfCVE_CRITICAL":numberOfCVE_CRITICAL, "numberOfCVE_HIGH":numberOfCVE_HIGH, "numberOfCVE_MEDIUM":numberOfCVE_MEDIUM, "numberOfCVE_LOW":numberOfCVE_LOW, "numberOfCVE_NoScore":numberOfCVE_NoScore}})
-    print("Done")
 
 
 def loadCVE(i): 
@@ -88,7 +86,6 @@ def updateAll():
             print("Importing into the DB...")
             for i in data['CVE_Items']:
                 insertCVE(loadCVE(i))
-            print("Done")
     print("updateAll ended")
 
 def updateModiefied():
@@ -101,7 +98,6 @@ def updateModiefied():
         print("Importing into the DB...")
         for i in data['CVE_Items']:
             insertCVE(loadCVE(i))
-        print("Done")
     print("updateModified ended")
 
 def createCache():
@@ -125,14 +121,12 @@ def createCache():
     lastModifiedDateDB.insert_many(recent_MEDIUM)
     recent_LOW = cveDB.find({'baseScore': {'$gte': 0.1, '$lte': 3.9}}).sort('lastModifiedDate', -1).limit(10)
     lastModifiedDateDB.insert_many(recent_LOW)
-    print("Done")
 
 
 def metaCalc():
     print("Updating metadata...")
     statsCalc()
     createCache()
-    print("Done")
     
 
 # Wait for mongoDB
@@ -154,8 +148,8 @@ cveDB.create_index('lastModifiedDate')
 publishedDateDB.create_index('publishedDate')
 lastModifiedDateDB.create_index('lastModifiedDate')
 
-# updateModiefied()
-# updateAll()
+updateModiefied()
+updateAll()
 metaCalc()
 scheduler = BlockingScheduler()
 scheduler.add_job(updateAll, 'interval', hours=1)

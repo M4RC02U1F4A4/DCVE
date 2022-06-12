@@ -6,9 +6,9 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return redirect("/top/published", 301)
+    return redirect("/last/published", 301)
 
-@app.route('/top/published')
+@app.route('/last/published')
 def lastPublished():
     mydict = stats.find_one({"_id":"stats"})
     recent_CRITICAL = publishedDateDB.find(({'baseScore':  {'$gte': 9.0}})).sort('publishedDate', -1).limit(10)
@@ -16,7 +16,7 @@ def lastPublished():
     recent_MEDIUM = publishedDateDB.find({'baseScore':  {'$gte': 4.0, '$lte': 6.9}}).sort('publishedDate', -1).limit(10)
     recent_LOW = publishedDateDB.find({'baseScore': {'$gte': 0.1, '$lte': 3.9}}).sort('publishedDate', -1).limit(10)
     return render_template(
-        'topPublished.html',
+        'lastPublished.html',
         numberOfCVE = mydict['numberOfCVE'],
         numberOfCVE_CRITICAL = mydict['numberOfCVE_CRITICAL'],
         numberOfCVE_HIGH = mydict['numberOfCVE_HIGH'],
@@ -29,7 +29,7 @@ def lastPublished():
         recent_LOW = recent_LOW,
     )
 
-@app.route('/top/modified')
+@app.route('/last/modified')
 def lastModified():
     mydict = stats.find_one({"_id":"stats"})
     recent_CRITICAL = lastModifiedDateDB.find(({'baseScore':  {'$gte': 9.0}})).sort('lastModifiedDate', -1).limit(10)
@@ -37,7 +37,7 @@ def lastModified():
     recent_MEDIUM = lastModifiedDateDB.find({'baseScore':  {'$gte': 4.0, '$lte': 6.9}}).sort('lastModifiedDate', -1).limit(10)
     recent_LOW = lastModifiedDateDB.find({'baseScore': {'$gte': 0.1, '$lte': 3.9}}).sort('lastModifiedDate', -1).limit(10)
     return render_template(
-        'topModified.html',
+        'lastModified.html',
         numberOfCVE = mydict['numberOfCVE'],
         numberOfCVE_CRITICAL = mydict['numberOfCVE_CRITICAL'],
         numberOfCVE_HIGH = mydict['numberOfCVE_HIGH'],
@@ -62,7 +62,7 @@ def todayModified():
         numberOfCVE_MEDIUM = mydict['numberOfCVE_MEDIUM'],
         numberOfCVE_LOW = mydict['numberOfCVE_LOW'],
         numberOfCVE_NoScore = mydict['numberOfCVE_NoScore'],
-        todayModifiedCVE = todayModifiedCVE
+        todayModifiedCVE = list(todayModifiedCVE)
     )
 
 @app.route('/today/published')
@@ -77,17 +77,51 @@ def todayPublished():
         numberOfCVE_MEDIUM = mydict['numberOfCVE_MEDIUM'],
         numberOfCVE_LOW = mydict['numberOfCVE_LOW'],
         numberOfCVE_NoScore = mydict['numberOfCVE_NoScore'],
-        todayPublishedCVE = todayPublishedCVE
+        todayPublishedCVE = list(todayPublishedCVE)
     )
 
+@app.route('/today/kev')
+def todayKevF():
+    mydict = stats.find_one({"_id":"stats"})
+    todayKEV_res = todayKev.find({}).sort('dateAdded', -1)
+    return render_template(
+        'todayKEV.html',
+        numberOfCVE = mydict['numberOfCVE'],
+        numberOfCVE_CRITICAL = mydict['numberOfCVE_CRITICAL'],
+        numberOfCVE_HIGH = mydict['numberOfCVE_HIGH'],
+        numberOfCVE_MEDIUM = mydict['numberOfCVE_MEDIUM'],
+        numberOfCVE_LOW = mydict['numberOfCVE_LOW'],
+        numberOfCVE_NoScore = mydict['numberOfCVE_NoScore'],
+        todayKEV_res = list(todayKEV_res)
+    )
+
+@app.route('/last/kev')
+def lastKevF():
+    mydict = stats.find_one({"_id":"stats"})
+    lastKEV_res = lastKev.find({}).sort('dateAdded', -1)
+    return render_template(
+        'lastKEV.html',
+        numberOfCVE = mydict['numberOfCVE'],
+        numberOfCVE_CRITICAL = mydict['numberOfCVE_CRITICAL'],
+        numberOfCVE_HIGH = mydict['numberOfCVE_HIGH'],
+        numberOfCVE_MEDIUM = mydict['numberOfCVE_MEDIUM'],
+        numberOfCVE_LOW = mydict['numberOfCVE_LOW'],
+        numberOfCVE_NoScore = mydict['numberOfCVE_NoScore'],
+        lastKEV_res = list(lastKEV_res)
+    )
 
 if __name__ == '__main__':
     client = pymongo.MongoClient(f"mongodb://{os.getenv('MONGODB_USERNAME')}:{os.getenv('MONGODB_PASSWORD')}@{os.getenv('MONGODB_HOST')}:{os.getenv('MONGODB_PORT')}")
+    
     db = client.data
     stats = db['stats']
+
     db2 = client.cache
     publishedDateDB = db2['publishedDateDB']
     lastModifiedDateDB = db2['lastModifiedDateDB']
     todayPublishedDateDB = db2['todayPublishedDateDB']
     todayLastModifiedDateDB = db2['todayLastModifiedDateDB']
+    lastKev = db2['lastKev']
+    todayKev = db2['todayKev']
+
     app.run(debug=True, port=5000, host='0.0.0.0')

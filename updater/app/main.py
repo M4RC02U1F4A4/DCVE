@@ -101,6 +101,24 @@ def updateModiefied():
             insertCVE(loadCVE(i))
     print("updateModified ended")
 
+def updateKev():
+    print("Updating KEV")
+    r = requests.get('https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json',)
+    jsonResponseCisa = r.json()
+    for i in jsonResponseCisa['vulnerabilities']:
+        score = cveDB.find_one({"_id":f"{i['cveID']}"})
+        if score:
+            score = score['baseScore']
+        else:
+            score = -1
+        mydict = {"_id":f"{i['cveID']}", "vendorProject":f"{i['vendorProject']}", "product":f"{i['product']}", "dateAdded":datetime.strptime(f"{i['dateAdded']}", "%Y-%m-%d"), "shortDescription":f"{i['shortDescription']}", "requiredAction":f"{i['requiredAction']}", "score":score}
+        try:
+            kev.insert_one(mydict)
+        except:
+            kev.update_one({"_id":f"{i['cveID']}"}, {"$set": {"vendorProject":f"{i['vendorProject']}", "product":f"{i['product']}", "dateAdded":datetime.strptime(f"{i['dateAdded']}", "%Y-%m-%d"), "shortDescription":f"{i['shortDescription']}", "requiredAction":f"{i['requiredAction']}", "score":score}})
+
+    print("KEV ended")
+
 def createCache():
     print("Creating cache...")
     publishedDateDB.delete_many({})
@@ -136,6 +154,16 @@ def createCache():
     todayModified_CVE = list(todayModified_CVE)
     if todayModified_CVE:
         todayLastModifiedDateDB.insert_many(todayModified_CVE)
+
+    lastKev.delete_many({})
+    recentKEV = kev.find().sort('dateAdded', -1).limit(10)
+    lastKev.insert_many(recentKEV)
+
+    todayKev.delete_many({})
+    todayKEV = kev.find({"dateAdded":{"$gte":todayDate}})
+    todayKEV = list(todayKEV)
+    if todayKEV:
+        todayKev.insert_many(todayKEV)
     print("Cache created")
     
 
@@ -151,31 +179,39 @@ def metaCalc():
 time.sleep(2)
 
 client = pymongo.MongoClient(f"mongodb://{os.getenv('MONGODB_USERNAME')}:{os.getenv('MONGODB_PASSWORD')}@{os.getenv('MONGODB_HOST')}:{os.getenv('MONGODB_PORT')}")
+
 db = client.data
 cveDB = db['cve']
 stats = db['stats']
 meta = db['meta']
+kev = db['kev']
 
 db2 = client.cache
 publishedDateDB = db2['publishedDateDB']
 lastModifiedDateDB = db2['lastModifiedDateDB']
-
 todayPublishedDateDB = db2['todayPublishedDateDB']
 todayLastModifiedDateDB = db2['todayLastModifiedDateDB']
+lastKev = db2['lastKev']
+todayKev = db2['todayKev']
 
 cveDB.create_index('baseScore')
 cveDB.create_index('publishedDate')
 cveDB.create_index('lastModifiedDate')
+kev.create_index('dateAdded')
 publishedDateDB.create_index('publishedDate')
 lastModifiedDateDB.create_index('lastModifiedDate')
 todayPublishedDateDB.create_index('publishedDate')
 todayLastModifiedDateDB.create_index('lastModifiedDate')
+lastKev.create_index('dateAdded')
+todayKev.create_index('dateAdded')
 
-updateModiefied()
-updateAll()
+# updateModiefied()
+# updateAll()
+updateKev()
 metaCalc()
 scheduler = BlockingScheduler()
 scheduler.add_job(updateAll, 'interval', hours=1)
 scheduler.add_job(updateModiefied, 'interval', hours=1)
 scheduler.add_job(metaCalc, 'interval', hours=1)
+scheduler.add_job(updateKev, 'interval', hours=1)
 scheduler.start()

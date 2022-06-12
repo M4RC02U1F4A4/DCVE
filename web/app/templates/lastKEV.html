@@ -1,0 +1,77 @@
+{% include 'start.html' %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-12 bg-dark text-light">
+                <p class="text-center font-weight-bold h5">LAST 10 KNOWN EXPLOITED VULNERABILITIES</p>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid TEXT">
+        {%for i in lastKEV_res%}
+            <div class="row  position-relative">
+                {% if i['score'] > 9.0 %}
+                <div class="col-sm-2 CRITICAL-info text-dark">
+                    <p class="text-center h5 font-weight-bold">{{i['_id']}} - {{i['score']}}</p>
+                {% elif i['score'] > 7.0 %}
+                <div class="col-sm-2 HIGH-info text-dark">
+                    <p class="text-center h5 font-weight-bold">{{i['_id']}} - {{i['score']}}</p>
+                {% elif i['score'] > 4.0 %}
+                <div class="col-sm-2 MEDIUM-info text-dark">
+                    <p class="text-center h5 font-weight-bold">{{i['_id']}} - {{i['score']}}</p>
+                {% elif i['score'] > 0.1 %}
+                <div class="col-sm-2 LOW-info text-dark">
+                    <p class="text-center h5 font-weight-bold">{{i['_id']}} - {{i['score']}}</p>
+                {% else %}
+                <div class="col-sm-2 INFO-info text-dark">
+                    <p class="text-center h5 font-weight-bold">{{i['_id']}}</p>
+                {% endif %}   
+                </div>
+                
+                {% if i['score'] > 9.0 %}
+                <div class="col-sm-2 CRITICAL-info text-dark">
+                {% elif i['score'] > 7.0 %}
+                <div class="col-sm-2 HIGH-info text-dark">
+                {% elif i['score'] > 4.0 %}
+                <div class="col-sm-2 MEDIUM-info text-dark">
+                {% elif i['score'] > 0.1 %}
+                <div class="col-sm-2 LOW-info text-dark">
+                {% else %}
+                <div class="col-sm-2 INFO-info text-dark">
+                {% endif %}
+                    <p class="h6 font-weight-bold">{{i['vendorProject']}} - {{i['product']}}</p>
+                </div>
+                
+                {% if i['score'] > 9.0 %}
+                <div class="col-sm-6 CRITICAL-info text-dark">
+                {% elif i['score'] > 7.0 %}
+                <div class="col-sm-6 HIGH-info text-dark">
+                {% elif i['score'] > 4.0 %}
+                <div class="col-sm-6 MEDIUM-info text-dark">
+                {% elif i['score'] > 0.1 %}
+                <div class="col-sm-6 LOW-info text-dark">
+                {% else %}
+                <div class="col-sm-6 INFO-info text-dark">
+                {% endif %}
+                    <p class="description line-clamp-5">{{i['shortDescription']}}</p>
+                    <p class="description line-clamp-5">{{i['requiredAction']}}</p>
+                </div>
+                
+                {% if i['score'] > 9.0 %}
+                <div class="col-sm-2 CRITICAL-info text-dark">
+                {% elif i['score'] > 7.0 %}
+                <div class="col-sm-2 HIGH-info text-dark">
+                {% elif i['score'] > 4.0 %}
+                <div class="col-sm-2 MEDIUM-info text-dark">
+                {% elif i['score'] > 0.1 %}
+                <div class="col-sm-2 LOW-info text-dark">
+                {% else %}
+                <div class="col-sm-2 INFO-info text-dark">
+                {% endif %}
+                    <p class="text-center">{{i['dateAdded']}}</p>
+                </div>
+                <a class="stretched-link" target="_blank" href="https://nvd.nist.gov/vuln/detail/{{i['_id']}}"></a>
+            </div>
+            <div class="row SEPARATOR"></div>
+        {%endfor%}
+    </div>
+{% include 'end.html' %}

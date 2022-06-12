@@ -1,6 +1,10 @@
 body {
-    background-color: white;
+    background-color: #212529;
     font-family: ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace;
+}
+
+.TEXT {
+    background-color: white;
 }
 
 .CRITICAL {
@@ -29,6 +33,14 @@ body {
 }
 .LOW-info {
     background-color: rgba(255, 200, 30, 0.50)
+}
+
+.INFO {
+    background-color: #0D6EFD;
+}
+
+.INFO-info {
+    background-color: rgba(13, 110, 253, 0.5);
 }
 
 .SEPARATOR {

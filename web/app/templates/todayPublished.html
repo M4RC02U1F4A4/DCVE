@@ -14,10 +14,9 @@
                 <p class="text-center font-weight-bold h1">NO PUBLISHED VULNERABILITIES WITH A SCORE TODAY</p>
             </div>
         </div>
-        <style>body{background-color: #212529 !important;}</style>
     </div>
     {% else %}
-    <div class="container-fluid">
+    <div class="container-fluid TEXT">
         {%for i in todayModifiedCVE%}
             <div class="row  position-relative">
                 {% if i['baseScore'] > 9.0 %}

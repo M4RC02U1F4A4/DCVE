@@ -5,7 +5,6 @@ import io
 import zipfile
 import json
 import pymongo
-import datetime
 from apscheduler.schedulers.blocking import BlockingScheduler
 import os
 import requests
@@ -54,8 +53,8 @@ def statsCalc():
 
 def loadCVE(i): 
     id = i['cve']['CVE_data_meta']['ID']
-    publishedDate = datetime.datetime.strptime(i['publishedDate'], "%Y-%m-%dT%H:%MZ")
-    lastModifiedDate = datetime.datetime.strptime(i['lastModifiedDate'], "%Y-%m-%dT%H:%MZ")
+    publishedDate = datetime.strptime(i['publishedDate'], "%Y-%m-%dT%H:%MZ")
+    lastModifiedDate = datetime.strptime(i['lastModifiedDate'], "%Y-%m-%dT%H:%MZ")
     baseScore = -1
     vectorString = ""
     description = ""
@@ -118,61 +117,6 @@ def updateKev():
             kev.update_one({"_id":f"{i['cveID']}"}, {"$set": {"vendorProject":f"{i['vendorProject']}", "product":f"{i['product']}", "dateAdded":datetime.strptime(f"{i['dateAdded']}", "%Y-%m-%d"), "shortDescription":f"{i['shortDescription']}", "requiredAction":f"{i['requiredAction']}", "score":score}})
 
     print("KEV ended")
-
-def createCache():
-    print("Creating cache...")
-    publishedDateDB.delete_many({})
-    recent_CRITICAL = cveDB.find(({'baseScore':  {'$gte': 9.0}})).sort('publishedDate', -1).limit(10)
-    publishedDateDB.insert_many(recent_CRITICAL)
-    recent_HIGH = cveDB.find({'baseScore':  {'$gte': 7.0, '$lte': 8.9}}).sort('publishedDate', -1).limit(10)
-    publishedDateDB.insert_many(recent_HIGH)
-    recent_MEDIUM = cveDB.find({'baseScore':  {'$gte': 4.0, '$lte': 6.9}}).sort('publishedDate', -1).limit(10)
-    publishedDateDB.insert_many(recent_MEDIUM)
-    recent_LOW = cveDB.find({'baseScore': {'$gte': 0.1, '$lte': 3.9}}).sort('publishedDate', -1).limit(10)
-    publishedDateDB.insert_many(recent_LOW)
-
-    lastModifiedDateDB.delete_many({})
-    recent_CRITICAL = cveDB.find(({'baseScore':  {'$gte': 9.0}})).sort('lastModifiedDate', -1).limit(10)
-    lastModifiedDateDB.insert_many(recent_CRITICAL)
-    recent_HIGH = cveDB.find({'baseScore':  {'$gte': 7.0, '$lte': 8.9}}).sort('lastModifiedDate', -1).limit(10)
-    lastModifiedDateDB.insert_many(recent_HIGH)
-    recent_MEDIUM = cveDB.find({'baseScore':  {'$gte': 4.0, '$lte': 6.9}}).sort('lastModifiedDate', -1).limit(10)
-    lastModifiedDateDB.insert_many(recent_MEDIUM)
-    recent_LOW = cveDB.find({'baseScore': {'$gte': 0.1, '$lte': 3.9}}).sort('lastModifiedDate', -1).limit(10)
-    lastModifiedDateDB.insert_many(recent_LOW)
-
-    todayDate = datetime.strptime(date.today().strftime("%Y-%m-%d"), "%Y-%m-%d")
-
-    todayPublishedDateDB.delete_many({})
-    todayPublished_CVE = cveDB.find({"$and":[{"publishedDate":{"$gte":todayDate}},{"baseScore": {'$gte': 0.1}}]})
-    todayPublished_CVE = list(todayPublished_CVE)
-    if todayPublished_CVE:
-        todayPublishedDateDB.insert_many(todayPublished_CVE)
-
-    todayLastModifiedDateDB.delete_many({})
-    todayModified_CVE = cveDB.find({"$and":[{"lastModifiedDate":{"$gte":todayDate}},{"baseScore": {'$gte': 0.1}}]})
-    todayModified_CVE = list(todayModified_CVE)
-    if todayModified_CVE:
-        todayLastModifiedDateDB.insert_many(todayModified_CVE)
-
-    lastKev.delete_many({})
-    recentKEV = kev.find().sort('dateAdded', -1).limit(10)
-    lastKev.insert_many(recentKEV)
-
-    todayKev.delete_many({})
-    todayKEV = kev.find({"dateAdded":{"$gte":todayDate}})
-    todayKEV = list(todayKEV)
-    if todayKEV:
-        todayKev.insert_many(todayKEV)
-    print("Cache created")
-    
-
-
-
-def metaCalc():
-    print("Updating metadata...")
-    statsCalc()
-    createCache()
     
 
 # Wait for mongoDB
@@ -186,32 +130,20 @@ stats = db['stats']
 meta = db['meta']
 kev = db['kev']
 
-db2 = client.cache
-publishedDateDB = db2['publishedDateDB']
-lastModifiedDateDB = db2['lastModifiedDateDB']
-todayPublishedDateDB = db2['todayPublishedDateDB']
-todayLastModifiedDateDB = db2['todayLastModifiedDateDB']
-lastKev = db2['lastKev']
-todayKev = db2['todayKev']
 
 cveDB.create_index('baseScore')
 cveDB.create_index('publishedDate')
 cveDB.create_index('lastModifiedDate')
 kev.create_index('dateAdded')
-publishedDateDB.create_index('publishedDate')
-lastModifiedDateDB.create_index('lastModifiedDate')
-todayPublishedDateDB.create_index('publishedDate')
-todayLastModifiedDateDB.create_index('lastModifiedDate')
-lastKev.create_index('dateAdded')
-todayKev.create_index('dateAdded')
 
 updateModiefied()
 updateAll()
 updateKev()
-metaCalc()
+statsCalc() 
+
 scheduler = BlockingScheduler()
 scheduler.add_job(updateAll, 'interval', hours=1)
 scheduler.add_job(updateModiefied, 'interval', hours=1)
-scheduler.add_job(metaCalc, 'interval', hours=1)
+scheduler.add_job(statsCalc, 'interval', hours=1)
 scheduler.add_job(updateKev, 'interval', hours=1)
 scheduler.start()

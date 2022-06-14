@@ -2,54 +2,66 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-12 bg-dark text-light">
-                <p class="text-center font-weight-bold h5">TODAY PUBLISHED VULNERABILITIES</p>
+                <p class="text-center font-weight-bold h5">TODAY PUBLISHED VULNERABILITIES [{{ todayPublishedCVE_number }}]</p>
             </div>
         </div>
     </div>
-    {% if not todayModifiedCVE %}
+    {% if not todayPublishedCVE %}
     <div class="container-fluid">
         <br><br><br><br><br><br>
         <div class="row">
             <div class="col-sm-12 bg-dark text-light">
-                <p class="text-center font-weight-bold h1">NO PUBLISHED VULNERABILITIES WITH A SCORE TODAY</p>
+                <p class="text-center font-weight-bold h1">NO PUBLISHED VULNERABILITIES TODAY</p>
             </div>
         </div>
     </div>
     {% else %}
     <div class="container-fluid TEXT">
-        {%for i in todayModifiedCVE%}
+        {%for i in todayPublishedCVE%}
             <div class="row  position-relative">
                 {% if i['baseScore'] > 9.0 %}
                 <div class="col-sm-2 CRITICAL-info text-dark">
+                    <p class="text-center h5 font-weight-bold">{{i['_id']}} - {{i['baseScore']}}</p>
                 {% elif i['baseScore'] > 7.0 %}
                 <div class="col-sm-2 HIGH-info text-dark">
+                    <p class="text-center h5 font-weight-bold">{{i['_id']}} - {{i['baseScore']}}</p>
                 {% elif i['baseScore'] > 4.0 %}
                 <div class="col-sm-2 MEDIUM-info text-dark">
-                {% else %}
-                <div class="col-sm-2 LOW-info text-dark">
-                {% endif %}
                     <p class="text-center h5 font-weight-bold">{{i['_id']}} - {{i['baseScore']}}</p>
+                {% elif i['baseScore'] > 0.0 %}
+                <div class="col-sm-2 LOW-info text-dark">
+                    <p class="text-center h5 font-weight-bold">{{i['_id']}} - {{i['baseScore']}}</p>
+                {% else %}
+                <div class="col-sm-2 INFO-info text-dark">
+                    <p class="text-center h5 font-weight-bold">{{i['_id']}}</p>
+                {% endif %}
                     <p class="text-center description">{{i['vectorString']}}</p>
                 </div>
+
                 {% if i['baseScore'] > 9.0 %}
                 <div class="col-sm-8 CRITICAL-info text-dark">
                 {% elif i['baseScore'] > 7.0 %}
                 <div class="col-sm-8 HIGH-info text-dark">
                 {% elif i['baseScore'] > 4.0 %}
                 <div class="col-sm-8 MEDIUM-info text-dark">
-                {% else %}
+                {% elif i['baseScore'] > 0.0 %}
                 <div class="col-sm-8 LOW-info text-dark">
+                {% else %}
+                <div class="col-sm-8 INFO-info text-dark">
                 {% endif %}
                     <p class="description line-clamp-5">{{i['description']}}</p>
                 </div>
+                
                 {% if i['baseScore'] > 9.0 %}
                 <div class="col-sm-2 CRITICAL-info text-dark">
                 {% elif i['baseScore'] > 7.0 %}
                 <div class="col-sm-2 HIGH-info text-dark">
                 {% elif i['baseScore'] > 4.0 %}
                 <div class="col-sm-2 MEDIUM-info text-dark">
-                {% else %}
+                {% elif i['baseScore'] > 0.0 %}
                 <div class="col-sm-2 LOW-info text-dark">
+                {% else %}
+                <div class="col-sm-2 INFO-info text-dark">
                 {% endif %}
                     <p class="text-center">{{i['lastModifiedDate']}}</p>
                 </div>

@@ -118,6 +118,23 @@ def updateKev():
 
     print("KEV ended")
     
+def patchTuesday():
+    month = f"{datetime.now().year}-{datetime.now().strftime('%b')}"
+    r = requests.get(f"https://api.msrc.microsoft.com/cvrf/{month}", headers={"Accept":"application/json"})
+    jsonResponseMicrosoft = r.json()
+
+    pTuesday.delete_many({})
+
+    for i in jsonResponseMicrosoft['Vulnerability']:
+        if len(i['CVSSScoreSets']) > 0:
+            mydict = {"_id":f"{i['CVE']}", "score":i['CVSSScoreSets'][0]['BaseScore'], "vector":f"{i['CVSSScoreSets'][0]['Vector']}", "date":datetime.strptime(f"{i['RevisionHistory'][0]['Date']}", "%Y-%m-%dT%H:%M:%S"), "description":f"{i['Title']['Value']}"}
+        else:
+            mydict = {"_id":f"{i['CVE']}", "score":-1, "date":datetime.strptime(f"{i['RevisionHistory'][0]['Date']}", "%Y-%m-%dT%H:%M:%S"), "description":f"{i['Title']['Value']}"}
+        pTuesday.insert_one(mydict)
+
+        
+        
+
 
 # Wait for mongoDB
 time.sleep(2)
@@ -129,21 +146,25 @@ cveDB = db['cve']
 stats = db['stats']
 meta = db['meta']
 kev = db['kev']
+pTuesday = db['pTuesday']
 
 
 cveDB.create_index('baseScore')
 cveDB.create_index('publishedDate')
 cveDB.create_index('lastModifiedDate')
 kev.create_index('dateAdded')
+pTuesday.create_index('score')
 
-updateModiefied()
-updateAll()
-updateKev()
-statsCalc() 
+# updateModiefied()
+# updateAll()
+# updateKev()
+# statsCalc()
+patchTuesday()
 
 scheduler = BlockingScheduler()
 scheduler.add_job(updateAll, 'interval', hours=1)
 scheduler.add_job(updateModiefied, 'interval', hours=1)
 scheduler.add_job(statsCalc, 'interval', hours=1)
 scheduler.add_job(updateKev, 'interval', hours=1)
+scheduler.add_job(patchTuesday, 'interval', hours=24)
 scheduler.start()

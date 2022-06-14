@@ -55,7 +55,8 @@ def lastModified():
 def todayModified():
     mydict = stats.find_one({"_id":"stats"})
     todayDate = datetime.strptime(date.today().strftime("%Y-%m-%d"), "%Y-%m-%d")
-    todayModifiedCVE = cveDB.find({"lastModifiedDate":{"$gte":todayDate}})
+    todayModifiedCVE = cveDB.find({"lastModifiedDate":{"$gte":todayDate}}).sort('lastModifiedDate', -1)
+    todayModifiedCVE_number = cveDB.count_documents({"lastModifiedDate":{"$gte":todayDate}})
     return render_template(
         'todayModified.html',
         numberOfCVE = mydict['numberOfCVE'],
@@ -64,14 +65,16 @@ def todayModified():
         numberOfCVE_MEDIUM = mydict['numberOfCVE_MEDIUM'],
         numberOfCVE_LOW = mydict['numberOfCVE_LOW'],
         numberOfCVE_NoScore = mydict['numberOfCVE_NoScore'],
-        todayModifiedCVE = list(todayModifiedCVE)
+        todayModifiedCVE = list(todayModifiedCVE),
+        todayModifiedCVE_number = todayModifiedCVE_number
     )
 
 @app.route('/today/published')
 def todayPublished():
     mydict = stats.find_one({"_id":"stats"})
     todayDate = datetime.strptime(date.today().strftime("%Y-%m-%d"), "%Y-%m-%d")
-    todayPublishedCVE = cveDB.find({"publishedDate":{"$gte":todayDate}})
+    todayPublishedCVE = cveDB.find({"publishedDate":{"$gte":todayDate}}).sort('publishedDate', -1)
+    todayPublishedCVE_number = cveDB.count_documents({"publishedDate":{"$gte":todayDate}})
     return render_template(
         'todayPublished.html',
         numberOfCVE = mydict['numberOfCVE'],
@@ -80,7 +83,23 @@ def todayPublished():
         numberOfCVE_MEDIUM = mydict['numberOfCVE_MEDIUM'],
         numberOfCVE_LOW = mydict['numberOfCVE_LOW'],
         numberOfCVE_NoScore = mydict['numberOfCVE_NoScore'],
-        todayPublishedCVE = list(todayPublishedCVE)
+        todayPublishedCVE = list(todayPublishedCVE),
+        todayPublishedCVE_number = todayPublishedCVE_number
+    )
+
+@app.route('/last/kev')
+def lastKevF():
+    mydict = stats.find_one({"_id":"stats"})
+    lastKEV_res = kev.find().sort('dateAdded', -1).limit(10)
+    return render_template(
+        'lastKEV.html',
+        numberOfCVE = mydict['numberOfCVE'],
+        numberOfCVE_CRITICAL = mydict['numberOfCVE_CRITICAL'],
+        numberOfCVE_HIGH = mydict['numberOfCVE_HIGH'],
+        numberOfCVE_MEDIUM = mydict['numberOfCVE_MEDIUM'],
+        numberOfCVE_LOW = mydict['numberOfCVE_LOW'],
+        numberOfCVE_NoScore = mydict['numberOfCVE_NoScore'],
+        lastKEV_res = list(lastKEV_res)
     )
 
 @app.route('/today/kev')
@@ -99,19 +118,38 @@ def todayKevF():
         todayKEV_res = list(todayKEV_res)
     )
 
-@app.route('/last/kev')
-def lastKevF():
+@app.route('/patchtuesday')
+def patchTuesday():
     mydict = stats.find_one({"_id":"stats"})
-    lastKEV_res = kev.find().sort('dateAdded', -1).limit(10)
+    patch = pTuesday.find({})
+    patch_number = pTuesday.count_documents({})
     return render_template(
-        'lastKEV.html',
+        'patchTuesday.html',
         numberOfCVE = mydict['numberOfCVE'],
         numberOfCVE_CRITICAL = mydict['numberOfCVE_CRITICAL'],
         numberOfCVE_HIGH = mydict['numberOfCVE_HIGH'],
         numberOfCVE_MEDIUM = mydict['numberOfCVE_MEDIUM'],
         numberOfCVE_LOW = mydict['numberOfCVE_LOW'],
         numberOfCVE_NoScore = mydict['numberOfCVE_NoScore'],
-        lastKEV_res = list(lastKEV_res)
+        patch = list(patch),
+        patch_number = patch_number
+    )
+
+@app.route('/fasttuesday')
+def fastTuesday():
+    mydict = stats.find_one({"_id":"stats"})
+    patch = pTuesday.find({'score':  {'$gte': 7.0}}).sort('score', -1)
+    patch_number = pTuesday.count_documents({'score':  {'$gte': 7.0}})
+    return render_template(
+        'patchTuesday.html',
+        numberOfCVE = mydict['numberOfCVE'],
+        numberOfCVE_CRITICAL = mydict['numberOfCVE_CRITICAL'],
+        numberOfCVE_HIGH = mydict['numberOfCVE_HIGH'],
+        numberOfCVE_MEDIUM = mydict['numberOfCVE_MEDIUM'],
+        numberOfCVE_LOW = mydict['numberOfCVE_LOW'],
+        numberOfCVE_NoScore = mydict['numberOfCVE_NoScore'],
+        patch = list(patch),
+        patch_number = patch_number
     )
 
 if __name__ == '__main__':
@@ -121,5 +159,6 @@ if __name__ == '__main__':
     stats = db['stats']
     cveDB = db['cve']
     kev = db['kev']
+    pTuesday = db['pTuesday']
 
     app.run(debug=True, port=5000, host='0.0.0.0')

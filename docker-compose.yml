@@ -10,11 +10,13 @@ services:
       PYTHONUNBUFFERED: 1
       MONGODB_USERNAME: changeme
       MONGODB_PASSWORD: changeme
-      MONGODB_HOST: 192.168.1.20
+      MONGODB_HOST: db
       MONGODB_PORT: 27017
       TZ: Europe/Rome
     ports:
-      - 5000:5000
+      - 80:5000
+    depends_on:
+      - db
 
   updater:
     build: 
@@ -24,9 +26,14 @@ services:
       PYTHONUNBUFFERED: 1
       MONGODB_USERNAME: changeme
       MONGODB_PASSWORD: changeme
-      MONGODB_HOST: 192.168.1.20
+      MONGODB_HOST: db
       MONGODB_PORT: 27017
+      WEB_HOST: web
+      WEB_PORT: 5000
       TZ: Europe/Rome
+    depends_on:
+      - db
+      - web
 
   db:
     image: mongo
@@ -37,10 +44,3 @@ services:
       TZ: Europe/Rome
     volumes:
       - ./docker_db:/data/db
-    ports:
-      - 27017:27017
-
-networks:
-  default:
-    external: true
-    name: dockernet

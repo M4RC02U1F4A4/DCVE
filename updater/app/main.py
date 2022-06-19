@@ -31,6 +31,10 @@ def shacheck(link, id):
         return True
 
 
+def resetCache():
+    requests.get(f"http://{os.getenv('WEB_HOST')}:{os.getenv('WEB_PORT')}/reset_cache")
+
+
 def statsCalc():
     print("Updating stats...")
     numberOfCVE = cveDB.count_documents({})
@@ -49,7 +53,7 @@ def statsCalc():
         stats.insert_one(mydict)
     except:
         stats.update_one({"_id":"stats"}, {"$set": {"numberOfCVE":numberOfCVE, "numberOfCVE_CRITICAL":numberOfCVE_CRITICAL, "numberOfCVE_HIGH":numberOfCVE_HIGH, "numberOfCVE_MEDIUM":numberOfCVE_MEDIUM, "numberOfCVE_LOW":numberOfCVE_LOW, "numberOfCVE_NoScore":numberOfCVE_NoScore}})
-
+    resetCache()
 
 def loadCVE(i): 
     id = i['cve']['CVE_data_meta']['ID']
@@ -86,6 +90,7 @@ def updateAll():
             print("Importing into the DB...")
             for i in data['CVE_Items']:
                 insertCVE(loadCVE(i))
+    resetCache()
     print("updateAll ended")
 
 def updateModiefied():
@@ -98,6 +103,7 @@ def updateModiefied():
         print("Importing into the DB...")
         for i in data['CVE_Items']:
             insertCVE(loadCVE(i))
+    resetCache()
     print("updateModified ended")
 
 def updateKev():
@@ -115,7 +121,7 @@ def updateKev():
             kev.insert_one(mydict)
         except:
             kev.update_one({"_id":f"{i['cveID']}"}, {"$set": {"vendorProject":f"{i['vendorProject']}", "product":f"{i['product']}", "dateAdded":datetime.strptime(f"{i['dateAdded']}", "%Y-%m-%d"), "shortDescription":f"{i['shortDescription']}", "requiredAction":f"{i['requiredAction']}", "score":score}})
-
+    resetCache()
     print("KEV ended")
     
 def patchTuesday():
@@ -131,7 +137,7 @@ def patchTuesday():
         else:
             mydict = {"_id":f"{i['CVE']}", "score":-1, "date":datetime.strptime(f"{i['RevisionHistory'][0]['Date']}", "%Y-%m-%dT%H:%M:%S"), "description":f"{i['Title']['Value']}"}
         pTuesday.insert_one(mydict)
-
+    resetCache()
         
         
 

@@ -1,15 +1,31 @@
 from flask import Flask, render_template, redirect
+from flask_caching import Cache
 import os
 import pymongo
 from datetime import date, datetime
 
+config = {
+    "DEBUG": True,          # some Flask specific configs
+    "CACHE_TYPE": "SimpleCache",  # Flask-Caching related configs
+    "CACHE_DEFAULT_TIMEOUT": 300
+}
+
 app = Flask(__name__)
+
+app.config.from_mapping(config)
+cache = Cache(app)
 
 @app.route('/')
 def home():
     return redirect("/last/published", 301)
 
+@app.route('/reset_cache')
+def rc():
+    cache.clear()
+    return "OK", 200
+
 @app.route('/last/published')
+@cache.cached()
 def lastPublished():
     mydict = stats.find_one({"_id":"stats"})
     recent_CRITICAL = cveDB.find(({'baseScore':  {'$gte': 9.0}})).sort('publishedDate', -1).limit(10)
@@ -31,6 +47,7 @@ def lastPublished():
     )
 
 @app.route('/last/modified')
+@cache.cached()
 def lastModified():
     mydict = stats.find_one({"_id":"stats"})
     recent_CRITICAL = cveDB.find(({'baseScore':  {'$gte': 9.0}})).sort('lastModifiedDate', -1).limit(10)
@@ -52,6 +69,7 @@ def lastModified():
     )
 
 @app.route('/today/modified')
+@cache.cached()
 def todayModified():
     mydict = stats.find_one({"_id":"stats"})
     todayDate = datetime.strptime(date.today().strftime("%Y-%m-%d"), "%Y-%m-%d")
@@ -70,6 +88,7 @@ def todayModified():
     )
 
 @app.route('/today/published')
+@cache.cached()
 def todayPublished():
     mydict = stats.find_one({"_id":"stats"})
     todayDate = datetime.strptime(date.today().strftime("%Y-%m-%d"), "%Y-%m-%d")
@@ -88,6 +107,7 @@ def todayPublished():
     )
 
 @app.route('/last/kev')
+@cache.cached()
 def lastKevF():
     mydict = stats.find_one({"_id":"stats"})
     lastKEV_res = kev.find().sort('dateAdded', -1).limit(10)
@@ -103,6 +123,7 @@ def lastKevF():
     )
 
 @app.route('/today/kev')
+@cache.cached()
 def todayKevF():
     mydict = stats.find_one({"_id":"stats"})
     todayDate = datetime.strptime(date.today().strftime("%Y-%m-%d"), "%Y-%m-%d")
@@ -119,6 +140,7 @@ def todayKevF():
     )
 
 @app.route('/patchtuesday')
+@cache.cached()
 def patchTuesday():
     mydict = stats.find_one({"_id":"stats"})
     patch = pTuesday.find({})
@@ -136,6 +158,7 @@ def patchTuesday():
     )
 
 @app.route('/fasttuesday')
+@cache.cached()
 def fastTuesday():
     mydict = stats.find_one({"_id":"stats"})
     patch = pTuesday.find({'score':  {'$gte': 7.0}}).sort('score', -1)

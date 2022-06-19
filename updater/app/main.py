@@ -1,4 +1,3 @@
-from datetime import date
 import time
 import urllib.request
 import io
@@ -127,6 +126,11 @@ def updateKev():
 def patchTuesday():
     month = f"{datetime.now().year}-{datetime.now().strftime('%b')}"
     r = requests.get(f"https://api.msrc.microsoft.com/cvrf/{month}", headers={"Accept":"application/json"})
+    if r.status_code == 404:
+        m = int(datetime.now().month - 1)
+        m = 12 if m == 0 else m
+        month = f"{datetime.now().year}-{date(1900, m, 1).strftime('%b')}"
+        r = requests.get(f"https://api.msrc.microsoft.com/cvrf/{month}", headers={"Accept":"application/json"})
     jsonResponseMicrosoft = r.json()
 
     pTuesday.delete_many({})

@@ -2,7 +2,7 @@ from flask import Flask, render_template, redirect
 from flask_caching import Cache
 import os
 import pymongo
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 config = {
     "DEBUG": True,          # some Flask specific configs
@@ -104,6 +104,25 @@ def todayPublished():
         numberOfCVE_NoScore = mydict['numberOfCVE_NoScore'],
         todayPublishedCVE = list(todayPublishedCVE),
         todayPublishedCVE_number = todayPublishedCVE_number
+    )
+
+@app.route('/last/72h')
+# @cache.cached()
+def last72h():
+    mydict = stats.find_one({"_id":"stats"})
+    todayDate = datetime.strptime((date.today() - timedelta(3)).strftime("%Y-%m-%d"), "%Y-%m-%d")
+    pm72h = cveDB.find({"$and":[{"$or":[ {"publishedDate":{"$gte":todayDate}}, {"lastModifiedDate":{"$gte":todayDate}}]}, {"baseScore":{"$gte":0.0}}]}).sort('lastModifiedDate', -1)
+    pm72h_number = cveDB.count_documents({"$and":[{"$or":[ {"publishedDate":{"$gte":todayDate}}, {"lastModifiedDate":{"$gte":todayDate}}]}, {"baseScore":{"$gte":0.0}}]})
+    return render_template(
+        'pm72h.html',
+        numberOfCVE = mydict['numberOfCVE'],
+        numberOfCVE_CRITICAL = mydict['numberOfCVE_CRITICAL'],
+        numberOfCVE_HIGH = mydict['numberOfCVE_HIGH'],
+        numberOfCVE_MEDIUM = mydict['numberOfCVE_MEDIUM'],
+        numberOfCVE_LOW = mydict['numberOfCVE_LOW'],
+        numberOfCVE_NoScore = mydict['numberOfCVE_NoScore'],
+        pm72h = list(pm72h),
+        pm72h_number = pm72h_number
     )
 
 @app.route('/last/kev')

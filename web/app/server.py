@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect
+from flask import Flask, render_template, redirect, request
 from flask_caching import Cache
 import os
 import pymongo
@@ -193,6 +193,26 @@ def fastTuesday():
         patch = list(patch),
         patch_number = patch_number
     )
+
+@app.route('/check_cve', methods=['GET', 'POST'])
+def checkCVE():
+    if request.method == 'GET':
+        mydict = stats.find_one({"_id":"stats"})
+        checkcve = cveDB.find({'updated': 1}).sort('lastModifiedDate', -1)
+        checkcve_number = cveDB.count_documents({'updated': 1})
+        return render_template(
+            'checkCVE.html',
+            numberOfCVE = mydict['numberOfCVE'],
+            numberOfCVE_CRITICAL = mydict['numberOfCVE_CRITICAL'],
+            numberOfCVE_HIGH = mydict['numberOfCVE_HIGH'],
+            numberOfCVE_MEDIUM = mydict['numberOfCVE_MEDIUM'],
+            numberOfCVE_LOW = mydict['numberOfCVE_LOW'],
+            numberOfCVE_NoScore = mydict['numberOfCVE_NoScore'],
+            checkcve = list(checkcve),
+            checkcve_number = checkcve_number
+        )
+    if request.method == 'POST':
+        pass
 
 if __name__ == '__main__':
     client = pymongo.MongoClient(f"mongodb://{os.getenv('MONGODB_USERNAME')}:{os.getenv('MONGODB_PASSWORD')}@{os.getenv('MONGODB_HOST')}:{os.getenv('MONGODB_PORT')}")

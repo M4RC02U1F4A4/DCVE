@@ -68,14 +68,14 @@ def loadCVE(i):
                 vectorString = i['impact']['baseMetricV3']['cvssV3']['vectorString']
     if "description" in i['cve']:
         description = i['cve']['description']['description_data'][0]['value']
-    return({"_id":f"{id}", "baseScore":baseScore, "vectorString":f"{vectorString}", "description":f"{description}", "publishedDate":publishedDate, "lastModifiedDate":lastModifiedDate})
+    return({"_id":f"{id}", "baseScore":baseScore, "vectorString":f"{vectorString}", "description":f"{description}", "publishedDate":publishedDate, "lastModifiedDate":lastModifiedDate, "updated":0})
 
 
 def insertCVE(mydict):
     try:
         cveDB.insert_one(mydict)
     except:
-        cveDB.update_one({"_id":f"{mydict['_id']}"}, {"$set": {"baseScore":mydict['baseScore'], "vectorString":f"{mydict['vectorString']}", "description":f"{mydict['description']}", "publishedDate":mydict['publishedDate'], "lastModifiedDate":mydict['lastModifiedDate']}})
+        cveDB.update_one({"_id":f"{mydict['_id']}"}, {"$set": {"baseScore":mydict['baseScore'], "vectorString":f"{mydict['vectorString']}", "description":f"{mydict['description']}", "publishedDate":mydict['publishedDate'], "lastModifiedDate":mydict['lastModifiedDate'], "updated":1}})
 
 
 def updateAll():
@@ -162,6 +162,7 @@ pTuesday = db['pTuesday']
 cveDB.create_index('baseScore')
 cveDB.create_index('publishedDate')
 cveDB.create_index('lastModifiedDate')
+cveDB.create_index('updated')
 kev.create_index('dateAdded')
 pTuesday.create_index('score')
 
@@ -176,5 +177,5 @@ scheduler.add_job(updateAll, 'interval', hours=1)
 scheduler.add_job(updateModiefied, 'interval', hours=1)
 scheduler.add_job(statsCalc, 'interval', hours=1)
 scheduler.add_job(updateKev, 'interval', hours=1)
-scheduler.add_job(patchTuesday, 'interval', hours=24)
+scheduler.add_job(patchTuesday, 'interval', hours=1)
 scheduler.start()

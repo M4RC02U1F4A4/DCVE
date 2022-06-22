@@ -214,7 +214,7 @@ def checkCVE():
 @app.route('/check_cve/<cveReaded>')
 def read_checkCVE(cveReaded=""):
     if not cveReaded == "":
-        mydict = cveDB.update_one({"_id":f"{cveReaded}"}, {"$set": {"updated": 0}})
+        cveDB.update_one({"_id":f"{cveReaded}"}, {"$set": {"updated": 0}})
         return redirect("/check_cve")
 
         

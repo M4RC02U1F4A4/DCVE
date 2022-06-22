@@ -31,6 +31,7 @@ def shacheck(link, id):
 
 
 def resetCache():
+    statsCalc()
     requests.get(f"http://{os.getenv('WEB_HOST')}:{os.getenv('WEB_PORT')}/reset_cache")
 
 
@@ -171,6 +172,8 @@ updateAll()
 updateKev()
 statsCalc()
 patchTuesday()
+
+
 
 scheduler = BlockingScheduler()
 scheduler.add_job(updateAll, 'interval', hours=1)

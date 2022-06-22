@@ -194,25 +194,30 @@ def fastTuesday():
         patch_number = patch_number
     )
 
-@app.route('/check_cve', methods=['GET', 'POST'])
+@app.route('/check_cve')
 def checkCVE():
-    if request.method == 'GET':
-        mydict = stats.find_one({"_id":"stats"})
-        checkcve = cveDB.find({'updated': 1}).sort('lastModifiedDate', -1)
-        checkcve_number = cveDB.count_documents({'updated': 1})
-        return render_template(
-            'checkCVE.html',
-            numberOfCVE = mydict['numberOfCVE'],
-            numberOfCVE_CRITICAL = mydict['numberOfCVE_CRITICAL'],
-            numberOfCVE_HIGH = mydict['numberOfCVE_HIGH'],
-            numberOfCVE_MEDIUM = mydict['numberOfCVE_MEDIUM'],
-            numberOfCVE_LOW = mydict['numberOfCVE_LOW'],
-            numberOfCVE_NoScore = mydict['numberOfCVE_NoScore'],
-            checkcve = list(checkcve),
-            checkcve_number = checkcve_number
-        )
-    if request.method == 'POST':
-        pass
+    mydict = stats.find_one({"_id":"stats"})
+    checkcve = cveDB.find({'updated': 1}).sort('lastModifiedDate', -1)
+    checkcve_number = cveDB.count_documents({'updated': 1})
+    return render_template(
+        'checkCVE.html',
+        numberOfCVE = mydict['numberOfCVE'],
+        numberOfCVE_CRITICAL = mydict['numberOfCVE_CRITICAL'],
+        numberOfCVE_HIGH = mydict['numberOfCVE_HIGH'],
+        numberOfCVE_MEDIUM = mydict['numberOfCVE_MEDIUM'],
+        numberOfCVE_LOW = mydict['numberOfCVE_LOW'],
+        numberOfCVE_NoScore = mydict['numberOfCVE_NoScore'],
+        checkcve = list(checkcve),
+        checkcve_number = checkcve_number
+    )
+
+@app.route('/check_cve/<cveReaded>')
+def read_checkCVE(cveReaded=""):
+    if not cveReaded == "":
+        mydict = cveDB.update_one({"_id":f"{cveReaded}"}, {"$set": {"updated": 0}})
+        return redirect("/check_cve")
+
+        
 
 if __name__ == '__main__':
     client = pymongo.MongoClient(f"mongodb://{os.getenv('MONGODB_USERNAME')}:{os.getenv('MONGODB_PASSWORD')}@{os.getenv('MONGODB_HOST')}:{os.getenv('MONGODB_PORT')}")

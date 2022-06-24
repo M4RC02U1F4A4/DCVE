@@ -15,6 +15,8 @@
 - `LAST 10 MODIFIED` -> Last 10 CVEs modified divided by severity
 - `MODIFIED TODAY` -> All CVEs modified today
 - `PUBLISHED TODAY` -> All CVEs published today
+- `LAST 72h` -> All CVEs published or modified in the last 72h
+- `CHECK CVE` -> All CVEs published or modified with the ability to "set as read" (click on the ID to remove it from the dashboard)
 - `LAST 10 KEV` -> Last 10 Known Exploited Vulnerabilities
 - `KEV TODAY` -> Known Exploited Vulnerabilities published today
 - `PATCH TUESDAY` -> Last published Microsoft Patch Tuesday

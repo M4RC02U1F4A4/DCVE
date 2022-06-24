@@ -197,8 +197,8 @@ def fastTuesday():
 @app.route('/check_cve')
 def checkCVE():
     mydict = stats.find_one({"_id":"stats"})
-    checkcve = cveDB.find({'updated': 1}).sort('lastModifiedDate', -1)
-    checkcve_number = cveDB.count_documents({'updated': 1})
+    checkcve = cveDB.find({"$and":[{'updated': 1}, {'score':  {'$gte': 0}}]}).sort('lastModifiedDate', -1)
+    checkcve_number = cveDB.count_documents({"$and":[{'updated': 1}, {'score':  {'$gte': 0}}]})
     return render_template(
         'checkCVE.html',
         numberOfCVE = mydict['numberOfCVE'],

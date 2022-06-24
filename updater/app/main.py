@@ -68,15 +68,17 @@ def loadCVE(i):
                 vectorString = i['impact']['baseMetricV3']['cvssV3']['vectorString']
     if "description" in i['cve']:
         description = i['cve']['description']['description_data'][0]['value']
-    return({"_id":f"{id}", "baseScore":baseScore, "vectorString":f"{vectorString}", "description":f"{description}", "publishedDate":publishedDate, "lastModifiedDate":lastModifiedDate, "updated":0})
+    return({"_id":f"{id}", "baseScore":baseScore, "vectorString":f"{vectorString}", "description":f"{description}", "publishedDate":publishedDate, "lastModifiedDate":lastModifiedDate})
 
 
 def insertCVE(mydict):
-    try:
-        cveDB.insert_one(mydict)
-    except:
+    dict = cveDB.find_one({"_id":f"{mydict['_id']}"})
+    if dict and mydict == dict:
+        pass
+    elif dict and mydict != dict:
         cveDB.update_one({"_id":f"{mydict['_id']}"}, {"$set": {"baseScore":mydict['baseScore'], "vectorString":f"{mydict['vectorString']}", "description":f"{mydict['description']}", "publishedDate":mydict['publishedDate'], "lastModifiedDate":mydict['lastModifiedDate'], "updated":1}})
-
+    else:
+        cveDB.insert_one({"_id":f"{mydict['_id']}", "baseScore":mydict['baseScore'], "vectorString":f"{mydict['vectorString']}", "description":f"{mydict['description']}", "publishedDate":mydict['publishedDate'], "lastModifiedDate":mydict['lastModifiedDate'], "updated":1})
 
 def updateAll():
     print("Starting updateAll")

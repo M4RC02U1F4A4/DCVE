@@ -197,8 +197,8 @@ def fastTuesday():
 @app.route('/check_cve')
 def checkCVE():
     mydict = stats.find_one({"_id":"stats"})
-    checkcve = cveDB.find({'updated': 1}).sort('lastModifiedDate', -1)
-    checkcve_number = cveDB.count_documents({'updated': 1})
+    checkcve = cveDB.find({"$and":[{'updated': 1}, {'baseScore':  {'$gte': 0}}]}).sort('lastModifiedDate', -1)
+    checkcve_number = cveDB.count_documents({"$and":[{'updated': 1}, {'baseScore':  {'$gte': 0}}]})
     return render_template(
         'checkCVE.html',
         numberOfCVE = mydict['numberOfCVE'],
@@ -216,6 +216,13 @@ def read_checkCVE(cveReaded=""):
     if not cveReaded == "":
         cveDB.update_one({"_id":f"{cveReaded}"}, {"$set": {"updated": 0}})
         return redirect("/check_cve")
+
+@app.route('/check_cve/ALL')
+def read_checkCVE_ALL():
+    checkcve = cveDB.find({"$and":[{'updated': 1}, {'baseScore':  {'$gte': 0}}]})
+    for i in checkcve:
+        cveDB.update_one({"_id":f"{i['_id']}"}, {"$set": {"updated": 0}})
+    return redirect("/check_cve")
 
         
 

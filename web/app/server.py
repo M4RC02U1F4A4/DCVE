@@ -217,12 +217,6 @@ def read_checkCVE(cveReaded=""):
         cveDB.update_one({"_id":f"{cveReaded}"}, {"$set": {"updated": 0}})
         return redirect("/check_cve")
 
-@app.route('/check_cve/undo/<cveReaded>')
-def read_checkCVE_undo(cveReaded=""):
-    if not cveReaded == "":
-        cveDB.update_one({"_id":f"{cveReaded}"}, {"$set": {"updated": 1}})
-        return redirect("/last/72h")
-
 @app.route('/check_cve/ALL')
 def read_checkCVE_ALL():
     checkcve = cveDB.find({"$and":[{'updated': 1}, {'baseScore':  {'$gte': 0}}]})
@@ -230,6 +224,11 @@ def read_checkCVE_ALL():
         cveDB.update_one({"_id":f"{i['_id']}"}, {"$set": {"updated": 0}})
     return redirect("/check_cve")
 
+@app.route('/check_cve/undo/<cveReaded>')
+def read_checkCVE_undo(cveReaded=""):
+    if not cveReaded == "":
+        cveDB.update_one({"_id":f"{cveReaded}"}, {"$set": {"updated": 1}})
+        return redirect("/last/72h")
         
 
 if __name__ == '__main__':

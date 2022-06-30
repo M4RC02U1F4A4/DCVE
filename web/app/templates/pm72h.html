@@ -18,38 +18,40 @@
     {% else %}
     <div class="container-fluid TEXT">
         {%for i in pm72h%}
-            <div class="row  position-relative">
+            <div class="row">
                 {% if i['baseScore'] > 9.0 %}
-                <div class="col-sm-2 CRITICAL-info text-dark">
+                <div class="col-sm-2 CRITICAL-info text-dark position-relative">
                     <p class="text-center h5 font-weight-bold">{{i['_id']}} - {{i['baseScore']}}</p>
                 {% elif i['baseScore'] > 7.0 %}
-                <div class="col-sm-2 HIGH-info text-dark">
+                <div class="col-sm-2 HIGH-info text-dark position-relative">
                     <p class="text-center h5 font-weight-bold">{{i['_id']}} - {{i['baseScore']}}</p>
                 {% elif i['baseScore'] > 4.0 %}
-                <div class="col-sm-2 MEDIUM-info text-dark">
+                <div class="col-sm-2 MEDIUM-info text-dark position-relative">
                     <p class="text-center h5 font-weight-bold">{{i['_id']}} - {{i['baseScore']}}</p>
                 {% elif i['baseScore'] > 0.0 %}
-                <div class="col-sm-2 LOW-info text-dark">
+                <div class="col-sm-2 LOW-info text-dark position-relative">
                     <p class="text-center h5 font-weight-bold">{{i['_id']}} - {{i['baseScore']}}</p>
                 {% else %}
-                <div class="col-sm-2 INFO-info text-dark">
+                <div class="col-sm-2 INFO-info text-dark position-relative">
                     <p class="text-center h5 font-weight-bold">{{i['_id']}}</p>
                 {% endif %}
                     <p class="text-center description">{{i['vectorString']}}</p>
+                    <a class="stretched-link" href="/check_cve/undo/{{i['_id']}}"></a>
                 </div>
 
                 {% if i['baseScore'] > 9.0 %}
-                <div class="col-sm-8 CRITICAL-info text-dark">
+                <div class="col-sm-8 CRITICAL-info text-dark position-relative">
                 {% elif i['baseScore'] > 7.0 %}
-                <div class="col-sm-8 HIGH-info text-dark">
+                <div class="col-sm-8 HIGH-info text-dark position-relative">
                 {% elif i['baseScore'] > 4.0 %}
-                <div class="col-sm-8 MEDIUM-info text-dark">
+                <div class="col-sm-8 MEDIUM-info text-dark position-relative">
                 {% elif i['baseScore'] > 0.0 %}
-                <div class="col-sm-8 LOW-info text-dark">
+                <div class="col-sm-8 LOW-info text-dark position-relative">
                 {% else %}
-                <div class="col-sm-8 INFO-info text-dark">
+                <div class="col-sm-8 INFO-info text-dark position-relative">
                 {% endif %}
                     <p class="description line-clamp-5">{{i['description']}}</p>
+                    <a class="stretched-link" target="_blank" href="https://nvd.nist.gov/vuln/detail/{{i['_id']}}"></a>
                 </div>
                 
                 {% if i['baseScore'] > 9.0 %}
@@ -65,7 +67,7 @@
                 {% endif %}
                     <p class="text-center">{{i['lastModifiedDate']}}</p>
                 </div>
-                <a class="stretched-link" target="_blank" href="https://nvd.nist.gov/vuln/detail/{{i['_id']}}"></a>
+                
             </div>
             <div class="row SEPARATOR"></div>
         {%endfor%}

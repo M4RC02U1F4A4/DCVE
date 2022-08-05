@@ -76,4 +76,5 @@ body {
 
 div {
     word-break: break-all;
+    box-sizing: border-box;
 }

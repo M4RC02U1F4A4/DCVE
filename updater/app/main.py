@@ -211,3 +211,4 @@ else:
 
 scheduler = BlockingScheduler()
 scheduler.add_job(updater, 'interval', hours=1)
+scheduler.start()

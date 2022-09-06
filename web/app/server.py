@@ -211,11 +211,11 @@ def checkCVE():
         checkcve_number = checkcve_number
     )
 
-@app.route('/check_cve/<cveReaded>')
-def read_checkCVE(cveReaded=""):
+@app.route('/check_cve/<cveReaded>/<id>')
+def read_checkCVE(cveReaded="", id=0):
     if not cveReaded == "":
         cveDB.update_one({"_id":f"{cveReaded}"}, {"$set": {"updated": 0}})
-        return redirect("/check_cve")
+        return redirect(f"/check_cve#{id}")
 
 @app.route('/check_cve/ALL')
 def read_checkCVE_ALL():

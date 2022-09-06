@@ -3,4 +3,5 @@ RUN mkdir app
 COPY app /app
 WORKDIR /app
 RUN pip install -r requirements.txt
-CMD [ "python", "./server.py"]
+ENTRYPOINT ["./gunicorn_starter.sh"]
+# CMD [ "python", "./server.py"]

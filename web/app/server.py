@@ -231,13 +231,13 @@ def read_checkCVE_undo(cveReaded=""):
         return redirect("/last/72h")
         
 
-if __name__ == '__main__':
-    client = pymongo.MongoClient(f"mongodb://{os.getenv('MONGODB_USERNAME')}:{os.getenv('MONGODB_PASSWORD')}@{os.getenv('MONGODB_HOST')}:{os.getenv('MONGODB_PORT')}")
-    
-    db = client.data
-    stats = db['stats']
-    cveDB = db['cve']
-    kev = db['kev']
-    pTuesday = db['pTuesday']
+# if __name__ == '__main__':
+client = pymongo.MongoClient(f"mongodb://{os.getenv('MONGODB_USERNAME')}:{os.getenv('MONGODB_PASSWORD')}@{os.getenv('MONGODB_HOST')}:{os.getenv('MONGODB_PORT')}")
 
-    app.run(debug=False, port=5000, host='0.0.0.0')
+db = client.data
+stats = db['stats']
+cveDB = db['cve']
+kev = db['kev']
+pTuesday = db['pTuesday']
+
+    # app.run(debug=False, port=5000, host='0.0.0.0')
